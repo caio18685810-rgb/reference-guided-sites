@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import {
-  Smartphone, BatteryCharging, Plug, Cpu, Camera, Droplets, Volume2, ShieldCheck,
-  Zap, Award, Clock, MapPin, Phone, Mail, Instagram, Facebook, Youtube, ChevronLeft,
+  Smartphone, Plug, Cpu, ShieldCheck,
+  Zap, Clock, MapPin, Phone, Instagram, Facebook, Youtube, ChevronLeft,
   ChevronRight, Play, Truck, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
 } from "lucide-react";
 import { Reveal, SectionHead } from "@/components/site/Reveal";
-// Substitua estas imagens pelas fotos reais da loja/produtos (mesmos caminhos).
 import hero from "@/assets/hero.jpg";
 import lab from "@/assets/lab.jpg";
 import pCase from "@/assets/p-case.jpg";
@@ -19,10 +18,10 @@ import v2 from "@/assets/v2.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VoltFix — Assistência técnica de celulares com delivery" },
-      { name: "description", content: "Troca de tela, bateria, conector e software com garantia. Busca e entrega do seu celular e acessórios premium." },
-      { property: "og:title", content: "VoltFix — Assistência técnica de celulares" },
-      { property: "og:description", content: "Reparo de smartphones com precisão de laboratório, delivery e loja de acessórios." },
+      { title: "Arcanjo Cell — Assistência Técnica em Parauapebas–PA" },
+      { name: "description", content: "Assistência técnica de celulares em Parauapebas–PA. Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios. Atendimento presencial e coleta por motoboy." },
+      { property: "og:title", content: "Arcanjo Cell — Assistência Técnica" },
+      { property: "og:description", content: "Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para celulares com atendimento e coleta por motoboy." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -30,8 +29,8 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// Troque pelo número real (formato internacional, só dígitos)
-const WHATSAPP = "5511999999999";
+// Número oficial Arcanjo Cell: (94) 98444-9409 (formato internacional)
+const WHATSAPP = "5594984449409";
 const wa = (msg: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
 
 const NAV = [
@@ -55,7 +54,7 @@ function Index() {
       </main>
       <Footer />
       <a
-        href={wa("Olá! Quero um orçamento.")}
+        href={wa("Olá! Gostaria de falar com a Arcanjo Cell.")}
         target="_blank" rel="noreferrer" aria-label="Falar no WhatsApp"
         className="fixed bottom-6 right-6 z-50 grid size-14 place-items-center rounded-full bg-royal shadow-glow transition-transform hover:scale-110"
       >
@@ -81,14 +80,14 @@ function Header() {
       <div className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-2.5 transition-all duration-500 ${scrolled ? "mx-4 border bg-background/70 backdrop-blur-xl md:mx-auto" : ""}`}>
         <a href="#top" className="display flex items-center gap-2 text-lg font-black">
           <span className="grid size-8 place-items-center rounded-lg bg-royal"><Zap className="size-4 text-primary-foreground" /></span>
-          VOLT<span className="text-neon">FIX</span>
+          ARCANJO<span className="text-neon"> CELL</span>
         </a>
         <nav className="hidden items-center gap-7 text-sm font-medium lg:flex">
           {NAV.map(([l, h]) => (
             <a key={h} href={h} className="relative text-muted-foreground transition-colors hover:text-foreground after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-neon after:transition-all hover:after:w-full">{l}</a>
           ))}
         </nav>
-        <a href="#delivery" className="btn-primary hidden !py-2.5 md:inline-flex">Agendar reparo</a>
+        <a href="#delivery" className="btn-primary hidden !py-2.5 md:inline-flex">Solicitar coleta</a>
         <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X /> : <Menu />}</button>
       </div>
       {open && (
@@ -106,30 +105,29 @@ function Header() {
 function Hero() {
   return (
     <section id="top" className="relative flex min-h-[100svh] items-end overflow-hidden pb-16 pt-32">
-      {/* Para vídeo em loop: troque <img> por <video autoPlay muted loop playsInline src="..."/> */}
-      <img src={hero} alt="Smartphone desmontado com componentes iluminados em azul" width={1920} height={1088}
+      <img src={hero} alt="Manutenção e componentes de celular" width={1920} height={1088}
         className="absolute inset-0 size-full object-cover opacity-70 animate-kenburns" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
       <div className="absolute inset-0 tech-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
       <div className="pointer-events-none absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-neon to-transparent opacity-60 animate-scan" />
 
       <div className="relative mx-auto w-full max-w-7xl px-5">
-        <span className="pill-tag animate-rise"><span className="size-1.5 rounded-full bg-neon shadow-neon" /> Laboratório certificado · Garantia de 6 meses</span>
+        <span className="pill-tag animate-rise"><span className="size-1.5 rounded-full bg-neon shadow-neon" /> Assistência Técnica · Parauapebas–PA</span>
         <h1 className="display mt-6 max-w-5xl text-5xl font-black sm:text-7xl lg:text-[8.5rem]">
           <span className="block animate-rise" style={{ animationDelay: "120ms" }}>Seu celular,</span>
-          <span className="block text-gradient animate-rise" style={{ animationDelay: "260ms" }}>renascido.</span>
+          <span className="block text-gradient animate-rise" style={{ animationDelay: "260ms" }}>em boas mãos.</span>
         </h1>
         <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
           <p className="max-w-xl text-lg text-muted-foreground animate-rise" style={{ animationDelay: "420ms" }}>
-            Reparo de smartphones com precisão de laboratório, peças de alta qualidade e busca e entrega na sua porta. Diagnóstico grátis em até 30 minutos.
+            Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para o seu celular. Atendimento presencial no bairro Nova Vida e coleta por motoboy em Parauapebas mediante agendamento.
           </p>
           <div className="flex flex-wrap gap-3 animate-rise" style={{ animationDelay: "560ms" }}>
-            <a href="#delivery" className="btn-primary">Agendar reparo <ArrowRight className="size-4" /></a>
-            <a href="#loja" className="btn-ghost">Ver catálogo</a>
+            <a href="#delivery" className="btn-primary">Solicitar coleta <ArrowRight className="size-4" /></a>
+            <a href="#loja" className="btn-ghost">Ver acessórios</a>
           </div>
         </div>
         <div className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border bg-border md:grid-cols-4 animate-rise" style={{ animationDelay: "700ms" }}>
-          {[["+12 mil", "aparelhos reparados"], ["30 min", "diagnóstico médio"], ["4,9★", "avaliação no Google"], ["6 meses", "de garantia"]].map(([n, l]) => (
+          {[["Telas", "Troca e manutenção"], ["Acesso", "Desbloqueio e recuperação"], ["Películas", "Aplicação e proteção"], ["Localização", "Nova Vida · Parauapebas"]].map(([n, l]) => (
             <div key={l} className="bg-background/80 p-5 backdrop-blur">
               <div className="display text-2xl font-bold text-neon md:text-3xl">{n}</div>
               <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{l}</div>
@@ -159,22 +157,22 @@ function Marquee() {
 /* ---------------- Quem somos ---------------- */
 function About() {
   const items = [
-    { i: Award, t: "Técnicos certificados", d: "Equipe treinada em microssoldagem e reparo de placa." },
-    { i: ShieldCheck, t: "Peças de qualidade", d: "Componentes testados e rastreáveis, com garantia." },
-    { i: Cpu, t: "Diagnóstico digital", d: "Laudo completo com mais de 40 testes de hardware." },
-    { i: Clock, t: "Reparo expresso", d: "Grande parte dos serviços fica pronta no mesmo dia." },
+    { i: Smartphone, t: "Troca de telas", d: "Substituição de tela e display realizada após análise do modelo e do aparelho." },
+    { i: Cpu, t: "Recuperação de acesso", d: "Análise da viabilidade técnica para procedimentos de recuperação de acesso e software." },
+    { i: ShieldCheck, t: "Aplicação de películas", d: "Aplicação de películas protetoras para conservação da tela do celular." },
+    { i: Plug, t: "Acessórios e comodidade", d: "Opções em acessórios para smartphone e serviço de coleta por motoboy." },
   ];
   return (
     <section id="sobre" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
-        <SectionHead tag="Quem somos" title={<>Tecnologia de laboratório, <span className="text-gradient">atendimento humano.</span></>}
-          text="Nascemos em 2014 numa bancada de 2 metros. Hoje somos um laboratório completo, com a missão de devolver seu aparelho como novo — rápido, transparente e com garantia." />
+        <SectionHead tag="Quem somos" title={<>Atendimento e assistência <span className="text-gradient">para o seu celular.</span></>}
+          text="A Arcanjo Cell atua no bairro Nova Vida, em Parauapebas–PA, prestando serviços de manutenção para smartphones e atendimento com coleta por motoboy. Nossos procedimentos são orientados pela clareza e transparência, com avaliação prévia de cada aparelho." />
         <div className="grid gap-5 lg:grid-cols-12">
           <Reveal className="relative overflow-hidden rounded-3xl lg:col-span-7 lg:row-span-2">
-            <img src={lab} alt="Técnico reparando placa de smartphone com pinça" loading="lazy" width={1280} height={960} className="size-full min-h-80 object-cover transition-transform duration-[1.5s] hover:scale-105" />
+            <img src={lab} alt="Bancada de assistência e manutenção técnica" loading="lazy" width={1280} height={960} className="size-full min-h-80 object-cover transition-transform duration-[1.5s] hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent" />
             <div className="absolute bottom-0 grid gap-4 p-6 sm:grid-cols-3 md:p-8">
-              {[["2014", "Fundação"], ["Missão", "Reparar com honestidade"], ["Visão", "Referência em reparo"]].map(([a, b]) => (
+              {[["Parauapebas", "Bairro Nova Vida"], ["Atendimento", "Presencial e Motoboy"], ["Avaliação", "Análise prévia do aparelho"]].map(([a, b]) => (
                 <div key={a} className="rounded-2xl border bg-background/60 p-4 backdrop-blur-md">
                   <div className="display text-lg font-bold text-neon">{a}</div>
                   <div className="text-sm text-muted-foreground">{b}</div>
@@ -200,16 +198,11 @@ function About() {
 }
 
 /* ---------------- Serviços ---------------- */
-// Ajuste os preços estimados conforme sua tabela real.
 const SERVICES = [
-  { i: Smartphone, t: "Troca de tela", d: "Display original ou premium, com película de brinde.", p: "a partir de R$ 249", time: "1h" },
-  { i: BatteryCharging, t: "Bateria", d: "Saúde 100% novamente, com calibração.", p: "a partir de R$ 149", time: "40min" },
-  { i: Plug, t: "Conector de carga", d: "Limpeza ou substituição do conector.", p: "a partir de R$ 99", time: "1h" },
-  { i: Cpu, t: "Software", d: "Atualização, desbloqueio, backup e formatação.", p: "a partir de R$ 79", time: "1h" },
-  { i: Camera, t: "Câmeras", d: "Lente traseira, módulo frontal e foco.", p: "a partir de R$ 129", time: "1h30" },
-  { i: Droplets, t: "Contato com líquido", d: "Banho químico e recuperação de placa.", p: "sob diagnóstico", time: "24h" },
-  { i: Volume2, t: "Áudio & microfone", d: "Alto-falante, auricular e microfone.", p: "a partir de R$ 89", time: "1h" },
-  { i: Wrench, t: "Reparo de placa", d: "Microssoldagem e troca de CI.", p: "sob diagnóstico", time: "48h" },
+  { i: Smartphone, t: "Troca de telas", d: "Substituição de tela ou display, mediante avaliação técnica prévia do aparelho." },
+  { i: Cpu, t: "Desbloqueio e recuperação", d: "Análise da viabilidade técnica para recuperação de acesso ou restauração, conforme o caso e modelo." },
+  { i: ShieldCheck, t: "Aplicação de películas", d: "Aplicação de películas para proteção e conservação da tela do smartphone." },
+  { i: Plug, t: "Acessórios para celular", d: "Opções em cabos, carregadores, capas e itens para celulares disponíveis para consulta." },
 ];
 
 function Services() {
@@ -217,8 +210,8 @@ function Services() {
     <section id="servicos" className="relative bg-band py-24 md:py-32">
       <div className="absolute inset-0 tech-grid opacity-30" />
       <div className="relative mx-auto max-w-7xl px-5">
-        <SectionHead tag="Serviços de reparo" title={<>Tudo que seu celular <span className="text-gradient">precisa.</span></>}
-          text="Passe o mouse (ou toque) em cada serviço para ver o tempo médio e o preço estimado. Orçamento final após diagnóstico gratuito." />
+        <SectionHead tag="Serviços prestados" title={<>Serviços dedicados ao seu <span className="text-gradient">smartphone.</span></>}
+          text="Conheça nossos serviços de manutenção e acessórios em Parauapebas. Valores e procedimentos são definidos mediante avaliação técnica prévia do aparelho." />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SERVICES.map((s, k) => (
             <Reveal key={s.t} delay={(k % 4) * 90}>
@@ -231,8 +224,8 @@ function Services() {
                 <h3 className="relative mt-8 text-xl font-semibold">{s.t}</h3>
                 <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
                 <div className="relative mt-5 flex translate-y-3 items-center justify-between border-t pt-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
-                  <span className="text-sm font-semibold text-neon">{s.p}</span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="size-3" />{s.time}</span>
+                  <span className="text-sm font-semibold text-neon">Sob consulta</span>
+                  <a href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-neon transition-colors"><MessageCircle className="size-3" />Consultar</a>
                 </div>
               </div>
             </Reveal>
@@ -244,15 +237,16 @@ function Services() {
 }
 
 /* ---------------- Loja ---------------- */
+// Espaços reservados mantidos na íntegra para inserção futura dos itens reais e disponibilidade confirmada
 const PRODUCTS = [
-  { img: pCase, n: "Capa Aero Shield", c: "Capas", p: "R$ 89,90", tag: "Lançamento" },
-  { img: pBuds, n: "Fone Pulse ANC", c: "Fones", p: "R$ 349,90", tag: "Oferta" },
-  { img: pCharger, n: "Carregador GaN 65W", c: "Carregadores", p: "R$ 199,90", tag: "Mais vendido" },
-  { img: pGlass, n: "Película Nano Glass 9H", c: "Protetores", p: "R$ 49,90", tag: "" },
-  { img: pBuds, n: "Fone Pulse Lite", c: "Fones", p: "R$ 179,90", tag: "" },
-  { img: pCase, n: "Capa MagSafe Carbon", c: "Capas", p: "R$ 119,90", tag: "Oferta" },
-  { img: pCharger, n: "Cabo Braided USB-C 2m", c: "Carregadores", p: "R$ 59,90", tag: "" },
-  { img: pGlass, n: "Película Privacidade", c: "Protetores", p: "R$ 69,90", tag: "Lançamento" },
+  { img: pCase, n: "Capa para Celular", c: "Capas", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pBuds, n: "Fone de Ouvido", c: "Fones", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pCharger, n: "Carregador para Celular", c: "Carregadores", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pGlass, n: "Película de Proteção", c: "Protetores", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pBuds, n: "Acessório de Áudio", c: "Fones", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pCase, n: "Capa Protetora", c: "Capas", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pCharger, n: "Cabo para Celular", c: "Carregadores", p: "Sob consulta", tag: "Espaço reservado" },
+  { img: pGlass, n: "Película de Privacidade", c: "Protetores", p: "Sob consulta", tag: "Espaço reservado" },
 ];
 const CATS = ["Todos", "Capas", "Carregadores", "Fones", "Protetores"];
 
@@ -279,8 +273,8 @@ function Shop() {
   return (
     <section id="loja" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
-        <SectionHead tag="Catálogo & loja" title={<>Acessórios que <span className="text-gradient">elevam</span> seu aparelho.</>}
-          text="Seleção curada de capas, carregadores, fones e protetores. Retire na loja ou receba junto com seu reparo." />
+        <SectionHead tag="Catálogo de acessórios" title={<>Acessórios e proteção para o <span className="text-gradient">seu aparelho.</span></>}
+          text="Espaço reservado para apresentação de itens e acessórios. Consulte a disponibilidade de modelos diretamente pelo nosso WhatsApp." />
         <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2" role="tablist">
             {CATS.map((c) => (
@@ -308,7 +302,7 @@ function Shop() {
                       <h3 className="mt-1 font-semibold">{p.n}</h3>
                       <div className="display mt-2 text-lg font-bold text-neon">{p.p}</div>
                     </div>
-                    <a href={wa(`Olá! Tenho interesse no produto: ${p.n}`)} target="_blank" rel="noreferrer" aria-label={`Comprar ${p.n}`}
+                    <a href={wa(`Olá! Gostaria de consultar informações sobre: ${p.n}`)} target="_blank" rel="noreferrer" aria-label={`Consultar ${p.n}`}
                       className="grid size-12 shrink-0 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:rotate-[-45deg]"><ArrowRight className="size-5 text-primary-foreground" /></a>
                   </div>
                 </article>
@@ -333,22 +327,22 @@ function Delivery() {
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const msg = `Olá! Quero agendar uma coleta.\nNome: ${f.get("nome")}\nAparelho: ${f.get("aparelho")}\nProblema: ${f.get("problema")}\nBairro: ${f.get("bairro")}`;
+    const msg = `Olá, Arcanjo Cell! Quero solicitar coleta por motoboy.\nNome: ${f.get("nome")}\nAparelho: ${f.get("aparelho")}\nServiço: ${f.get("problema")}\nEndereço/Bairro: ${f.get("bairro")}`;
     window.open(wa(msg), "_blank");
     setSent(true);
   };
   const steps = [
-    { i: CalendarCheck, t: "Agende", d: "Pelo formulário ou WhatsApp" },
-    { i: Truck, t: "Coletamos", d: "Motoboy busca em até 2h" },
-    { i: Wrench, t: "Reparamos", d: "Laudo e aprovação online" },
-    { i: Zap, t: "Entregamos", d: "Pronto e com garantia" },
+    { i: CalendarCheck, t: "Solicite", d: "Envie seus dados e endereço de Parauapebas" },
+    { i: Truck, t: "Coletamos", d: "Nosso motoboy busca o aparelho com você" },
+    { i: Wrench, t: "Avaliamos", d: "Análise técnica prévia e orçamento alinhado" },
+    { i: Zap, t: "Entregamos", d: "Devolvemos seu aparelho pronto no endereço" },
   ];
   const input = "w-full rounded-xl border bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground/70 transition-all focus:border-neon focus:shadow-neon focus:outline-none";
   return (
     <section id="delivery" className="relative bg-band py-24 md:py-32">
       <div className="relative mx-auto max-w-7xl px-5">
-        <SectionHead tag="Delivery & agendamento" title={<>A gente <span className="text-gradient">busca e entrega.</span></>}
-          text="Sem sair de casa: coletamos seu aparelho, reparamos no laboratório e devolvemos no mesmo endereço. Coleta grátis na área de cobertura." />
+        <SectionHead tag="Delivery & agendamento" title={<>Atendimento com <span className="text-gradient">coleta por motoboy.</span></>}
+          text="Solicite a busca do seu aparelho em seu endereço em Parauapebas. Realizamos a avaliação técnica prévia com comodidade e agilidade." />
         <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, k) => (
             <Reveal key={s.t} delay={k * 100} className="relative flex items-center gap-4 rounded-2xl border bg-background/40 p-5 backdrop-blur">
@@ -359,34 +353,34 @@ function Delivery() {
         </div>
         <div className="grid gap-5 lg:grid-cols-5">
           <Reveal className="card-tech p-6 md:p-8 lg:col-span-2">
-            <h3 className="display text-2xl font-bold">Agendar coleta</h3>
+            <h3 className="display text-2xl font-bold">Solicitar coleta</h3>
             <p className="mt-2 text-sm text-muted-foreground">Enviamos seu pedido direto para nosso WhatsApp.</p>
             <form onSubmit={submit} className="mt-6 grid gap-3">
               <label className="sr-only" htmlFor="nome">Nome</label>
               <input id="nome" name="nome" required maxLength={80} placeholder="Seu nome" className={input} />
               <label className="sr-only" htmlFor="aparelho">Aparelho</label>
               <input id="aparelho" name="aparelho" required maxLength={60} placeholder="Modelo do aparelho (ex: iPhone 13)" className={input} />
-              <label className="sr-only" htmlFor="problema">Problema</label>
-              <select id="problema" name="problema" className={input} defaultValue="Troca de tela">
+              <label className="sr-only" htmlFor="problema">Serviço</label>
+              <select id="problema" name="problema" className={input} defaultValue="Troca de telas">
                 {SERVICES.map((s) => <option key={s.t} className="bg-card">{s.t}</option>)}
               </select>
-              <label className="sr-only" htmlFor="bairro">Bairro</label>
-              <input id="bairro" name="bairro" required maxLength={60} placeholder="Bairro" className={input} />
-              <button type="submit" className="btn-primary mt-2 justify-center">Agendar pelo WhatsApp <MessageCircle className="size-4" /></button>
+              <label className="sr-only" htmlFor="bairro">Endereço / Bairro em Parauapebas</label>
+              <input id="bairro" name="bairro" required maxLength={120} placeholder="Seu endereço / bairro em Parauapebas" className={input} />
+              <button type="submit" className="btn-primary mt-2 justify-center">Enviar pedido via WhatsApp <MessageCircle className="size-4" /></button>
               {sent && <p className="text-center text-sm text-neon">Pedido aberto no WhatsApp. É só enviar!</p>}
             </form>
           </Reveal>
           <Reveal delay={150} className="relative min-h-96 overflow-hidden rounded-[1.25rem] border lg:col-span-3">
-            {/* Ajuste as coordenadas do mapa para a sua região de cobertura */}
-            <iframe title="Mapa da área de cobertura" loading="lazy"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-46.75%2C-23.65%2C-46.55%2C-23.5&layer=mapnik"
+            {/* Visualização aproximada da região do bairro Nova Vida, Parauapebas–PA */}
+            <iframe title="Mapa aproximado da região da loja" loading="lazy"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-49.900266967841785%2C-6.089011078829035%2C-49.890266967841785%2C-6.083011078829035&layer=mapnik"
               className="absolute inset-0 size-full [filter:invert(.92)_hue-rotate(185deg)_saturate(1.6)_brightness(.9)]" />
             <div className="pointer-events-none absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-neon/60 bg-primary/15 shadow-neon">
               <span className="absolute inset-0 rounded-full border border-neon animate-pulse-ring" />
               <MapPin className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-full text-neon animate-float" />
             </div>
             <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-              {["Centro", "Pinheiros", "Vila Mariana", "Moema", "Perdizes"].map((b) => (
+              {["Parauapebas–PA", "Bairro Nova Vida", "Localização aproximada"].map((b) => (
                 <span key={b} className="pill-tag bg-background/80 backdrop-blur">{b}</span>
               ))}
             </div>
@@ -398,12 +392,12 @@ function Delivery() {
 }
 
 /* ---------------- Vídeos ---------------- */
-// Substitua `src` pelos seus vídeos reais (MP4 hospedado ou link). `poster` é a miniatura.
+// Espaço reservado para mídia audiovisual futura. A seleção de miniaturas e o layout 16:9 estão preservados.
 const VIDEOS = [
-  { poster: v1, t: "Antes & depois: troca de tela", d: "0:48", src: "" },
-  { poster: lab, t: "Microssoldagem na prática", d: "1:12", src: "" },
-  { poster: v2, t: "Como funciona nosso delivery", d: "0:35", src: "" },
-  { poster: hero, t: "Por dentro de um smartphone", d: "1:30", src: "" },
+  { poster: v1, t: "Troca de telas", d: "Registro em breve", src: "" },
+  { poster: lab, t: "Desbloqueio e recuperação", d: "Registro em breve", src: "" },
+  { poster: v2, t: "Aplicação de películas", d: "Registro em breve", src: "" },
+  { poster: hero, t: "Acessórios para celular", d: "Registro em breve", src: "" },
 ];
 
 function Videos() {
@@ -412,8 +406,8 @@ function Videos() {
   return (
     <section id="videos" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
-        <SectionHead tag="Galeria de vídeos" title={<>Veja o reparo <span className="text-gradient">acontecer.</span></>}
-          text="Processos reais do nosso laboratório, transformações antes e depois e depoimentos de clientes." />
+        <SectionHead tag="Galeria & registros" title={<>Acompanhe nossos <span className="text-gradient">serviços.</span></>}
+          text="Espaço reservado para exibição de procedimentos de bancada, atendimento e novidades da Arcanjo Cell." />
         <div className="grid gap-5 lg:grid-cols-3">
           <Reveal className="group relative aspect-video overflow-hidden rounded-3xl border shadow-glow lg:col-span-2">
             {v.src ? (
@@ -422,14 +416,14 @@ function Videos() {
               <>
                 <img key={active} src={v.poster} alt={v.t} loading="lazy" className="size-full object-cover animate-kenburns" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                <button aria-label={`Reproduzir ${v.t}`} className="absolute left-1/2 top-1/2 grid size-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:scale-110">
-                  <span className="absolute inset-0 rounded-full bg-primary animate-pulse-ring" />
-                  <Play className="relative ml-1 size-8 fill-primary-foreground text-primary-foreground" />
+                <button aria-label={`Visualizar ${v.t}`} className="absolute left-1/2 top-1/2 grid size-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:scale-110 cursor-default">
+                  <span className="absolute inset-0 rounded-full bg-primary animate-pulse-ring opacity-60" />
+                  <Play className="relative ml-1 size-8 fill-primary-foreground text-primary-foreground opacity-90" />
                 </button>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="pill-tag">{v.d}</span>
+                  <span className="pill-tag">Registro em breve</span>
                   <h3 className="display mt-3 text-2xl font-bold md:text-3xl">{v.t}</h3>
-                  <div className="mt-4 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full w-1/3 bg-royal" /></div>
+                  <div className="mt-4 h-1 overflow-hidden rounded-full bg-muted"><div className="h-full w-1/3 bg-royal opacity-50" /></div>
                 </div>
               </>
             )}
@@ -456,12 +450,11 @@ function Videos() {
 
 /* ---------------- Contato ---------------- */
 function Contact() {
-  // Dados de exemplo: substitua pelos reais.
   const info = [
-    { i: MapPin, t: "Endereço", d: "Av. Paulista, 1000 — Bela Vista, São Paulo/SP" },
-    { i: Phone, t: "Telefone / WhatsApp", d: "(11) 99999-9999" },
-    { i: Mail, t: "E-mail", d: "contato@voltfix.com.br" },
-    { i: Clock, t: "Horário", d: "Seg–Sex 9h–19h · Sáb 9h–14h" },
+    { i: MapPin, t: "Endereço", d: "Rua Mangueiras, nº 360, bairro Nova Vida, Parauapebas–PA, CEP 68515-000" },
+    { i: Phone, t: "WhatsApp / Atendimento", d: "(94) 98444-9409" },
+    { i: Smartphone, t: "Serviços", d: "Telas, recuperação de acesso, películas e acessórios" },
+    { i: Clock, t: "Horário", d: "Atendimento presencial e via WhatsApp · Consulte horários" },
   ];
   return (
     <section id="contato" className="relative bg-band py-24 md:py-32">
@@ -477,8 +470,9 @@ function Contact() {
             ))}
           </div>
           <Reveal delay={150} className="relative min-h-96 overflow-hidden rounded-[1.25rem] border lg:col-span-3">
-            <iframe title="Mapa da loja" loading="lazy"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-46.665%2C-23.57%2C-46.645%2C-23.558&layer=mapnik&marker=-23.5641%2C-46.6545"
+            {/* Visualização aproximada da região do bairro Nova Vida, Parauapebas–PA */}
+            <iframe title="Mapa aproximado da região da loja" loading="lazy"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-49.900266967841785%2C-6.089011078829035%2C-49.890266967841785%2C-6.083011078829035&layer=mapnik&marker=-6.086011078829035%2C-49.895266967841785"
               className="absolute inset-0 size-full [filter:invert(.92)_hue-rotate(185deg)_saturate(1.6)_brightness(.9)]" />
           </Reveal>
         </div>
@@ -489,20 +483,20 @@ function Contact() {
 
 function Footer() {
   const cols = [
-    ["Serviços", ["Troca de tela", "Bateria", "Conector", "Software"]],
-    ["Empresa", ["Quem somos", "Garantia", "Trabalhe conosco", "Blog"]],
-    ["Ajuda", ["Delivery", "Rastrear reparo", "Perguntas frequentes", "Privacidade"]],
+    ["Serviços", ["Troca de telas", "Recuperação de acesso", "Películas", "Acessórios"]],
+    ["Atendimento", ["Bairro Nova Vida", "Parauapebas–PA", "Coleta por motoboy", "WhatsApp"]],
+    ["Navegação", ["Sobre", "Serviços", "Loja", "Contato"]],
   ] as const;
   return (
     <footer className="relative overflow-hidden border-t pt-20">
       <div className="mx-auto max-w-7xl px-5">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <div className="display text-2xl font-black">VOLT<span className="text-neon">FIX</span></div>
-            <p className="mt-4 max-w-xs text-sm text-muted-foreground">Assistência técnica de celulares com precisão de laboratório e delivery.</p>
+            <div className="display text-2xl font-black">ARCANJO<span className="text-neon"> CELL</span></div>
+            <p className="mt-4 max-w-xs text-sm text-muted-foreground">Assistência técnica de celulares no bairro Nova Vida em Parauapebas–PA. Atendimento presencial e coleta por motoboy.</p>
             <div className="mt-6 flex gap-3">
               {[Instagram, Facebook, Youtube].map((I, k) => (
-                <a key={k} href="#" aria-label="Rede social" className="grid size-10 place-items-center rounded-full border transition-all hover:border-neon hover:text-neon hover:shadow-neon"><I className="size-4" /></a>
+                <span key={k} aria-label="Canal social" className="grid size-10 place-items-center rounded-full border border-border/50 text-muted-foreground/40 cursor-default"><I className="size-4" /></span>
               ))}
             </div>
           </div>
@@ -515,10 +509,10 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="display pointer-events-none mt-16 select-none text-center text-[22vw] font-black leading-none text-gradient opacity-15">VOLTFIX</div>
+        <div className="display pointer-events-none mt-16 select-none text-center text-[22vw] font-black leading-none text-gradient opacity-15">ARCANJO CELL</div>
         <div className="flex flex-col justify-between gap-2 border-t py-6 text-xs text-muted-foreground md:flex-row">
-          <span>© {new Date().getFullYear()} VoltFix. Todos os direitos reservados.</span>
-          <span>CNPJ 00.000.000/0001-00</span>
+          <span>© {new Date().getFullYear()} Arcanjo Cell Assistência Técnica. Todos os direitos reservados.</span>
+          <span>Rua Mangueiras, nº 360, Nova Vida · Parauapebas–PA</span>
         </div>
       </div>
     </footer>
