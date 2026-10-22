@@ -408,7 +408,7 @@ const VIDEOS = [
 
 function Videos() {
   const [active, setActive] = useState(0);
-  const v = VIDEOS[active];
+  const v = VIDEOS[active] ?? VIDEOS[0]!;
   return (
     <section id="videos" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
