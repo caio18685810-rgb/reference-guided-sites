@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   Smartphone, Plug, Cpu, ShieldCheck, BatteryCharging, Volume2, Camera, Power, RefreshCw, Headphones,
-  Zap, Clock, MapPin, Phone, Instagram, Facebook, Youtube, ChevronLeft,
+  Zap, Clock, MapPin, Phone, Instagram, ChevronLeft,
   ChevronRight, ChevronDown, Play, Pause, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
 } from "lucide-react";
 import { Reveal, SectionHead } from "@/components/site/Reveal";
@@ -40,6 +40,20 @@ export const Route = createFileRoute("/")({
 // Número oficial Arcanjo Cell: (94) 98444-9409 (formato internacional)
 const WHATSAPP = "5594984449409";
 const wa = (msg: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+const INSTAGRAM_URL = "https://www.instagram.com/arcanjo_cell_pbs/";
+
+function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.711 1.456h.005c6.554 0 11.89-5.336 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+    </svg>
+  );
+}
 
 const NAV = [
   ["Sobre", "#sobre"], ["Serviços", "#servicos"], ["Loja", "#loja"],
@@ -812,6 +826,36 @@ function Contact() {
                 </div>
               </Reveal>
             ))}
+            <Reveal delay={320} className="sm:col-span-2 lg:col-span-1">
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Acompanhe nosso Instagram @arcanjo_cell_pbs (abre em nova aba)"
+                className="card-tech group flex flex-col justify-between gap-4 p-5 transition-all duration-300 hover:border-neon/40 hover:shadow-[0_0_25px_rgba(30,227,203,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="grid size-11 shrink-0 place-items-center rounded-xl border border-primary/40 bg-primary/10 transition-colors group-hover:border-neon group-hover:bg-neon/10">
+                    <Instagram className="size-5 text-neon" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs uppercase tracking-widest text-muted-foreground">Instagram</div>
+                    <p className="mt-1 text-sm font-medium text-foreground">
+                      Siga-nos para ficar por dentro das novidades!
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-border/40 pt-3 text-xs font-semibold text-neon">
+                  <span className="flex items-center gap-1.5">
+                    Acompanhe nosso Instagram
+                  </span>
+                  <span className="flex items-center gap-1 text-muted-foreground transition-colors group-hover:text-neon">
+                    <span className="text-[11px] font-normal">@arcanjo_cell_pbs</span>
+                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  </span>
+                </div>
+              </a>
+            </Reveal>
           </div>
           <Reveal delay={150} className="relative min-h-96 overflow-hidden rounded-[1.25rem] border lg:col-span-3">
             {/* Visualização aproximada da região do bairro Nova Vida, Parauapebas–PA */}
@@ -862,10 +906,25 @@ function Footer() {
           <div>
             <div className="display text-2xl font-black">ARCANJO<span className="text-neon"> CELL</span></div>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">Assistência técnica de celulares no bairro Nova Vida em Parauapebas–PA. Atendimento presencial e suporte via WhatsApp.</p>
-            <div className="mt-6 flex gap-3">
-              {[Instagram, Facebook, Youtube].map((I, k) => (
-                <span key={k} aria-label="Canal social" className="grid size-10 place-items-center rounded-full border border-border/50 text-muted-foreground/40 cursor-default"><I className="size-4" /></span>
-              ))}
+            <div className="mt-6 flex items-center gap-3">
+              <a
+                href={wa("Olá! Gostaria de falar com a Arcanjo Cell.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir WhatsApp"
+                className="grid size-11 place-items-center rounded-full border border-border/60 text-muted-foreground transition-all duration-200 hover:border-neon hover:bg-neon/10 hover:text-neon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <WhatsAppIcon className="size-4" />
+              </a>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir Instagram"
+                className="grid size-11 place-items-center rounded-full border border-border/60 text-muted-foreground transition-all duration-200 hover:border-neon hover:bg-neon/10 hover:text-neon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <Instagram className="size-4" aria-hidden="true" />
+              </a>
             </div>
           </div>
           {cols.map((col) => (
