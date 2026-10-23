@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, type FormEvent } from "react";
 import {
   Smartphone, Plug, Cpu, ShieldCheck, BatteryCharging, Volume2, Camera, Power, RefreshCw, Headphones,
   Zap, Clock, MapPin, Phone, Instagram, ChevronLeft,
-  ChevronRight, ChevronDown, Play, Pause, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
+  ChevronRight, ChevronDown, Play, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
 } from "lucide-react";
 import { Reveal, SectionHead } from "@/components/site/Reveal";
 import hero from "@/assets/hero.jpg";
@@ -182,16 +182,297 @@ function Hero() {
   );
 }
 
+function wrapPosition(x: number, width: number): number {
+  if (width <= 0) return 0;
+  let mod = x % width;
+  if (mod > 0) mod -= width;
+  return mod; // intervalo contínuo (-width, 0]
+}
+
+interface UseInfiniteCarouselOptions {
+  speed?: number; // pixels por segundo
+}
+
+function useInfiniteCarousel({ speed = 50 }: UseInfiniteCarouselOptions = {}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const singleTrackRef = useRef<HTMLDivElement | null>(null);
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const posRef = useRef(0);
+  const trackWidthRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const isHoveredRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const isPointerDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const startPosRef = useRef(0);
+  const lastTimeRef = useRef<number | null>(null);
+  const nudgeAnimRef = useRef<number | null>(null);
+
+  const measure = useCallback(() => {
+    if (singleTrackRef.current) {
+      const w = singleTrackRef.current.offsetWidth;
+      if (w > 0) {
+        trackWidthRef.current = w;
+        posRef.current = wrapPosition(posRef.current, w);
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${posRef.current}px, 0, 0)`;
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure]);
+
+  useEffect(() => {
+    const el = singleTrackRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  useEffect(() => {
+    let animId: number;
+    const mediaQuery = typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+    let prefersReduced = mediaQuery ? mediaQuery.matches : false;
+    const onMediaChange = (e: MediaQueryListEvent) => {
+      prefersReduced = e.matches;
+    };
+    mediaQuery?.addEventListener("change", onMediaChange);
+
+    const step = (time: number) => {
+      if (lastTimeRef.current == null) {
+        lastTimeRef.current = time;
+      }
+      const delta = (time - lastTimeRef.current) / 1000;
+      lastTimeRef.current = time;
+
+      const tw = trackWidthRef.current;
+      if (
+        tw > 0 &&
+        !isDraggingRef.current &&
+        !isPointerDownRef.current &&
+        !isHoveredRef.current &&
+        !prefersReduced &&
+        nudgeAnimRef.current == null
+      ) {
+        const nextPos = wrapPosition(posRef.current - speed * delta, tw);
+        posRef.current = nextPos;
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${nextPos}px, 0, 0)`;
+        }
+      }
+
+      animId = requestAnimationFrame(step);
+    };
+
+    animId = requestAnimationFrame(step);
+    return () => {
+      cancelAnimationFrame(animId);
+      mediaQuery?.removeEventListener("change", onMediaChange);
+    };
+  }, [speed]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    isPointerDownRef.current = true;
+    hasDraggedRef.current = false;
+    startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
+    startPosRef.current = posRef.current;
+    lastTimeRef.current = null;
+    if (nudgeAnimRef.current != null) {
+      cancelAnimationFrame(nudgeAnimRef.current);
+      nudgeAnimRef.current = null;
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!isPointerDownRef.current) return;
+    const deltaX = e.clientX - startXRef.current;
+    const deltaY = e.clientY - startYRef.current;
+
+    if (!isDraggingRef.current) {
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+        isPointerDownRef.current = false;
+        return;
+      }
+      if (Math.abs(deltaX) > 5) {
+        hasDraggedRef.current = true;
+        isDraggingRef.current = true;
+        setIsDragging(true);
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        } catch {}
+      }
+    }
+
+    if (isDraggingRef.current) {
+      const tw = trackWidthRef.current;
+      if (tw > 0) {
+        const next = wrapPosition(startPosRef.current + deltaX, tw);
+        posRef.current = next;
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${next}px, 0, 0)`;
+        }
+      }
+    }
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!isPointerDownRef.current) return;
+    isPointerDownRef.current = false;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
+
+    if (e.pointerType === "touch") {
+      isHoveredRef.current = false;
+    }
+    lastTimeRef.current = null;
+
+    setTimeout(() => {
+      hasDraggedRef.current = false;
+    }, 120);
+  };
+
+  const onPointerEnter = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") {
+      isHoveredRef.current = true;
+    }
+  };
+
+  const onPointerLeave = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") {
+      if (!isDraggingRef.current) {
+        isHoveredRef.current = false;
+        lastTimeRef.current = null;
+      }
+    }
+  };
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 10) {
+      const tw = trackWidthRef.current;
+      if (tw > 0) {
+        posRef.current = wrapPosition(posRef.current - e.deltaX * 0.85, tw);
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translate3d(${posRef.current}px, 0, 0)`;
+        }
+        lastTimeRef.current = null;
+      }
+    }
+  };
+
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (hasDraggedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  const nudge = useCallback((offset: number) => {
+    const tw = trackWidthRef.current;
+    if (tw <= 0) return;
+    if (nudgeAnimRef.current != null) {
+      cancelAnimationFrame(nudgeAnimRef.current);
+    }
+    const start = posRef.current;
+    const startTime = performance.now();
+    const duration = 350;
+
+    const animateNudge = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = wrapPosition(start + offset * ease, tw);
+      posRef.current = current;
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translate3d(${current}px, 0, 0)`;
+      }
+
+      if (progress < 1) {
+        nudgeAnimRef.current = requestAnimationFrame(animateNudge);
+      } else {
+        nudgeAnimRef.current = null;
+        lastTimeRef.current = null;
+      }
+    };
+
+    nudgeAnimRef.current = requestAnimationFrame(animateNudge);
+  }, []);
+
+  return {
+    containerRef,
+    trackRef,
+    singleTrackRef,
+    isDragging,
+    measure,
+    nudge,
+    containerProps: {
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerCancel: onPointerUp,
+      onPointerEnter,
+      onPointerLeave,
+      onWheel,
+      onClickCapture,
+    },
+  };
+}
+
 function Marquee() {
   const brands = ["Apple", "Samsung", "Motorola", "Xiaomi", "Google Pixel", "Realme", "Asus", "LG"];
+  const {
+    containerRef,
+    trackRef,
+    singleTrackRef,
+    isDragging,
+    containerProps,
+  } = useInfiniteCarousel({ speed: 45 });
+
   return (
-    <div className="border-y bg-surface py-5">
-      <div className="flex w-max animate-marquee gap-14">
-        {[...brands, ...brands].map((b, i) => (
-          <span key={i} className="display flex items-center gap-14 text-xl font-bold text-muted-foreground/60">
-            {b} <Zap className="size-4 text-primary" />
-          </span>
-        ))}
+    <div
+      ref={containerRef}
+      {...containerProps}
+      className={`border-y bg-surface py-5 overflow-hidden select-none [touch-action:pan-y] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+    >
+      <div
+        ref={trackRef}
+        className="flex w-max will-change-transform"
+      >
+        <div ref={singleTrackRef} className="flex shrink-0 items-center gap-14 pr-14">
+          {brands.map((b) => (
+            <span key={`b-real-${b}`} className="display flex items-center gap-14 text-xl font-bold text-muted-foreground/60 shrink-0">
+              {b} <Zap className="size-4 text-primary" />
+            </span>
+          ))}
+        </div>
+        <div aria-hidden="true" className="flex shrink-0 items-center gap-14 pr-14 select-none">
+          {brands.map((b) => (
+            <span key={`b-clone-1-${b}`} className="display flex items-center gap-14 text-xl font-bold text-muted-foreground/60 shrink-0">
+              {b} <Zap className="size-4 text-primary" />
+            </span>
+          ))}
+        </div>
+        <div aria-hidden="true" className="flex shrink-0 items-center gap-14 pr-14 select-none">
+          {brands.map((b) => (
+            <span key={`b-clone-2-${b}`} className="display flex items-center gap-14 text-xl font-bold text-muted-foreground/60 shrink-0">
+              {b} <Zap className="size-4 text-primary" />
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -256,46 +537,44 @@ const SERVICES = [
 ];
 
 function Services() {
-  const [isPaused, setIsPaused] = useState(false);
+  const {
+    containerRef,
+    trackRef,
+    singleTrackRef,
+    isDragging,
+    containerProps,
+  } = useInfiniteCarousel({ speed: 55 });
 
   return (
     <section id="servicos" className="relative overflow-hidden bg-band py-24 md:py-32">
       <div className="absolute inset-0 tech-grid opacity-30" />
       <div className="relative mx-auto max-w-7xl px-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHead
-            tag="Catálogo de serviços"
-            title={<>Serviços dedicados ao seu <span className="text-gradient">smartphone.</span></>}
-            text="Conheça nosso catálogo ampliado de manutenção e reparos em Parauapebas. Valores e procedimentos são definidos mediante avaliação técnica prévia do aparelho."
-          />
-          <div className="mb-8 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsPaused((prev) => !prev)}
-              aria-label={isPaused ? "Retomar movimento do carrossel" : "Pausar movimento do carrossel"}
-              className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/60 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-md transition-all duration-200 hover:border-neon hover:text-neon hover:shadow-neon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon"
-            >
-              {isPaused ? <Play className="size-3.5 fill-current text-neon" /> : <Pause className="size-3.5 text-neon" />}
-              <span>{isPaused ? "Retomar carrossel" : "Pausar carrossel"}</span>
-            </button>
-          </div>
-        </div>
+        <SectionHead
+          tag="Catálogo de serviços"
+          title={<>Serviços dedicados ao seu <span className="text-gradient">smartphone.</span></>}
+          text="Conheça nosso catálogo ampliado de manutenção e reparos em Parauapebas. Valores e procedimentos são definidos mediante avaliação técnica prévia do aparelho."
+        />
       </div>
 
-      {/* Carrossel horizontal contínuo e infinito */}
-      <div className="relative mt-8 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+      {/* Carrossel horizontal contínuo e infinito com arraste livre */}
+      <div
+        ref={containerRef}
+        {...containerProps}
+        className={`relative mt-8 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)] [touch-action:pan-y] select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      >
         <div
-          className={`flex w-max animate-marquee-services hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] ${isPaused ? "[animation-play-state:paused]" : ""}`}
+          ref={trackRef}
+          className="flex w-max will-change-transform"
         >
           {/* Trilha 1: Itens reais acessíveis */}
-          <div className="flex shrink-0 gap-5 pr-5">
+          <div ref={singleTrackRef} className="flex shrink-0 gap-5 pr-5">
             {SERVICES.map((s, k) => (
               <div
                 key={`s-real-${s.t}`}
                 className="w-[280px] shrink-0 sm:w-[320px] md:w-[360px]"
               >
                 <div tabIndex={0} className="card-tech group flex h-full min-h-[300px] flex-col justify-between overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon">
-                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30" />
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30 pointer-events-none" />
                   <div>
                     <div className="relative flex items-start justify-between">
                       <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
@@ -324,16 +603,16 @@ function Services() {
           {/* Trilha 2: Clone visual para loop contínuo infinito (oculto para leitores de tela e teclado) */}
           <div
             aria-hidden="true"
-            className="flex shrink-0 select-none pointer-events-none gap-5 pr-5"
+            className="flex shrink-0 select-none gap-5 pr-5"
           >
             {SERVICES.map((s, k) => (
               <div
-                key={`s-clone-${s.t}`}
+                key={`s-clone-1-${s.t}`}
                 tabIndex={-1}
                 className="w-[280px] shrink-0 sm:w-[320px] md:w-[360px]"
               >
                 <div className="card-tech group flex h-full min-h-[300px] flex-col justify-between overflow-hidden p-6">
-                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30" />
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30 pointer-events-none" />
                   <div>
                     <div className="relative flex items-start justify-between">
                       <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
@@ -344,10 +623,55 @@ function Services() {
                   </div>
                   <div className="relative mt-5 flex items-center justify-between border-t pt-4">
                     <span className="text-sm font-semibold text-neon">Sob consulta</span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <a
+                      href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      tabIndex={-1}
+                      className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-neon"
+                    >
                       <MessageCircle className="size-3" />
                       <span>Consultar</span>
-                    </span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Trilha 3: Clone de segurança para telas ultrawide (oculto para leitores de tela e teclado) */}
+          <div
+            aria-hidden="true"
+            className="flex shrink-0 select-none gap-5 pr-5"
+          >
+            {SERVICES.map((s, k) => (
+              <div
+                key={`s-clone-2-${s.t}`}
+                tabIndex={-1}
+                className="w-[280px] shrink-0 sm:w-[320px] md:w-[360px]"
+              >
+                <div className="card-tech group flex h-full min-h-[300px] flex-col justify-between overflow-hidden p-6">
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30 pointer-events-none" />
+                  <div>
+                    <div className="relative flex items-start justify-between">
+                      <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
+                      <span className="display text-xs text-muted-foreground">{String(k + 1).padStart(2, "0")}</span>
+                    </div>
+                    <h3 className="relative mt-6 text-lg font-semibold">{s.t}</h3>
+                    <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
+                  </div>
+                  <div className="relative mt-5 flex items-center justify-between border-t pt-4">
+                    <span className="text-sm font-semibold text-neon">Sob consulta</span>
+                    <a
+                      href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      tabIndex={-1}
+                      className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-neon"
+                    >
+                      <MessageCircle className="size-3" />
+                      <span>Consultar</span>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -375,69 +699,201 @@ const CATS = ["Todos", "Capas", "Carregadores", "Fones", "Protetores"];
 
 function Shop() {
   const [cat, setCat] = useState("Todos");
-  const [idx, setIdx] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const list = cat === "Todos" ? PRODUCTS : PRODUCTS.filter((p) => p.c === cat);
-  const [perView, setPerView] = useState(1);
-  useEffect(() => {
-    const on = () => setPerView(window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1);
-    on();
-    window.addEventListener("resize", on);
-    return () => window.removeEventListener("resize", on);
-  }, []);
-  const max = Math.max(0, list.length - perView);
-  useEffect(() => setIdx(0), [cat]);
-  useEffect(() => {
-    if (paused || max === 0) return;
-    const t = setInterval(() => setIdx((i) => (i >= max ? 0 : i + 1)), 4500);
-    return () => clearInterval(t);
-  }, [paused, max]);
+  const filteredList = useMemo(() => {
+    return cat === "Todos" ? PRODUCTS : PRODUCTS.filter((p) => p.c === cat);
+  }, [cat]);
+
+  // Garante itens suficientes na base para preencher o percurso infinito sem espaços vazios
+  const baseList = useMemo(() => {
+    if (filteredList.length === 0) return [];
+    let items = [...filteredList];
+    while (items.length < 6) {
+      items = [...items, ...filteredList];
+    }
+    return items;
+  }, [filteredList]);
+
+  const {
+    containerRef,
+    trackRef,
+    singleTrackRef,
+    isDragging,
+    nudge,
+    containerProps,
+  } = useInfiniteCarousel({ speed: 45 });
 
   return (
     <section id="loja" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
-        <SectionHead tag="Catálogo de acessórios" title={<>Acessórios e proteção para o <span className="text-gradient">seu aparelho.</span></>}
-          text="Espaço reservado para apresentação de itens e acessórios. Consulte a disponibilidade de modelos diretamente pelo nosso WhatsApp." />
+        <SectionHead
+          tag="Catálogo de acessórios"
+          title={<>Acessórios e proteção para o <span className="text-gradient">seu aparelho.</span></>}
+          text="Espaço reservado para apresentação de itens e acessórios. Consulte a disponibilidade de modelos diretamente pelo nosso WhatsApp."
+        />
         <Reveal className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2" role="tablist">
             {CATS.map((c) => (
-              <button key={c} role="tab" aria-selected={cat === c} onClick={() => setCat(c)}
-                className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${cat === c ? "border-transparent bg-royal text-primary-foreground shadow-glow" : "text-muted-foreground hover:border-neon hover:text-neon"}`}>{c}</button>
+              <button
+                key={c}
+                role="tab"
+                aria-selected={cat === c}
+                onClick={() => setCat(c)}
+                className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${cat === c ? "border-transparent bg-royal text-primary-foreground shadow-glow" : "text-muted-foreground hover:border-neon hover:text-neon"}`}
+              >
+                {c}
+              </button>
             ))}
           </div>
           <div className="flex gap-2">
-            <button aria-label="Anterior" onClick={() => setIdx((i) => (i <= 0 ? max : i - 1))} className="grid size-11 place-items-center rounded-full border transition-all hover:border-neon hover:text-neon hover:shadow-neon"><ChevronLeft className="size-5" /></button>
-            <button aria-label="Próximo" onClick={() => setIdx((i) => (i >= max ? 0 : i + 1))} className="grid size-11 place-items-center rounded-full border transition-all hover:border-neon hover:text-neon hover:shadow-neon"><ChevronRight className="size-5" /></button>
+            <button
+              aria-label="Rolar para a esquerda"
+              onClick={() => nudge(340)}
+              className="grid size-11 place-items-center rounded-full border transition-all hover:border-neon hover:text-neon hover:shadow-neon"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              aria-label="Rolar para a direita"
+              onClick={() => nudge(-340)}
+              className="grid size-11 place-items-center rounded-full border transition-all hover:border-neon hover:text-neon hover:shadow-neon"
+            >
+              <ChevronRight className="size-5" />
+            </button>
           </div>
         </Reveal>
-        <div className="overflow-hidden" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-          <div className="flex transition-transform duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)]" style={{ transform: `translateX(-${(idx * 100) / perView}%)` }}>
-            {list.map((p) => (
-              <div key={p.n} className="shrink-0 px-2.5" style={{ width: `${100 / perView}%` }}>
-                <article className="card-tech group overflow-hidden">
-                  <div className="relative aspect-square overflow-hidden rounded-t-[1.2rem]">
-                    <img src={p.img} alt={p.n} loading="lazy" width={816} height={816} className="size-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    {p.tag && <span className="pill-tag absolute left-4 top-4 bg-background/70 backdrop-blur">{p.tag}</span>}
-                  </div>
-                  <div className="flex items-center justify-between gap-3 p-5">
-                    <div>
-                      <div className="text-xs uppercase tracking-widest text-muted-foreground">{p.c}</div>
-                      <h3 className="mt-1 font-semibold">{p.n}</h3>
-                      <div className="display mt-2 text-lg font-bold text-neon">{p.p}</div>
+
+        {/* Carrossel contínuo, linear e infinito com arraste livre */}
+        <div
+          ref={containerRef}
+          {...containerProps}
+          className={`relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)] [touch-action:pan-y] select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        >
+          <div
+            ref={trackRef}
+            className="flex w-max will-change-transform"
+          >
+            {/* Trilha 1: Itens reais acessíveis */}
+            <div ref={singleTrackRef} className="flex shrink-0 gap-5 pr-5">
+              {baseList.map((p, idx) => (
+                <div key={`p-real-${p.n}-${idx}`} className="w-[260px] shrink-0 sm:w-[300px] md:w-[340px]">
+                  <article className="card-tech group overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden rounded-t-[1.2rem]">
+                      <img
+                        src={p.img}
+                        alt={p.n}
+                        loading="lazy"
+                        width={816}
+                        height={816}
+                        draggable={false}
+                        className="size-full object-cover select-none pointer-events-none transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {p.tag && <span className="pill-tag absolute left-4 top-4 bg-background/70 backdrop-blur">{p.tag}</span>}
                     </div>
-                    <a href={wa(`Olá! Gostaria de consultar informações sobre: ${p.n}`)} target="_blank" rel="noreferrer" aria-label={`Consultar ${p.n}`}
-                      className="grid size-12 shrink-0 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:rotate-[-45deg]"><ArrowRight className="size-5 text-primary-foreground" /></a>
-                  </div>
-                </article>
-              </div>
-            ))}
+                    <div className="flex items-center justify-between gap-3 p-5">
+                      <div>
+                        <div className="text-xs uppercase tracking-widest text-muted-foreground">{p.c}</div>
+                        <h3 className="mt-1 font-semibold">{p.n}</h3>
+                        <div className="display mt-2 text-lg font-bold text-neon">{p.p}</div>
+                      </div>
+                      <a
+                        href={wa(`Olá! Gostaria de consultar informações sobre: ${p.n}`)}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Consultar ${p.n}`}
+                        className="grid size-12 shrink-0 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:rotate-[-45deg]"
+                      >
+                        <ArrowRight className="size-5 text-primary-foreground" />
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
+
+            {/* Trilha 2: Clone visual para loop contínuo infinito */}
+            <div
+              aria-hidden="true"
+              className="flex shrink-0 select-none gap-5 pr-5"
+            >
+              {baseList.map((p, idx) => (
+                <div key={`p-clone-1-${p.n}-${idx}`} tabIndex={-1} className="w-[260px] shrink-0 sm:w-[300px] md:w-[340px]">
+                  <article className="card-tech group overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden rounded-t-[1.2rem]">
+                      <img
+                        src={p.img}
+                        alt={p.n}
+                        loading="lazy"
+                        width={816}
+                        height={816}
+                        draggable={false}
+                        className="size-full object-cover select-none pointer-events-none transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {p.tag && <span className="pill-tag absolute left-4 top-4 bg-background/70 backdrop-blur">{p.tag}</span>}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 p-5">
+                      <div>
+                        <div className="text-xs uppercase tracking-widest text-muted-foreground">{p.c}</div>
+                        <h3 className="mt-1 font-semibold">{p.n}</h3>
+                        <div className="display mt-2 text-lg font-bold text-neon">{p.p}</div>
+                      </div>
+                      <a
+                        href={wa(`Olá! Gostaria de consultar informações sobre: ${p.n}`)}
+                        target="_blank"
+                        rel="noreferrer"
+                        tabIndex={-1}
+                        aria-label={`Consultar ${p.n}`}
+                        className="grid size-12 shrink-0 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:rotate-[-45deg]"
+                      >
+                        <ArrowRight className="size-5 text-primary-foreground" />
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
+
+            {/* Trilha 3: Clone de segurança para telas ultrawide */}
+            <div
+              aria-hidden="true"
+              className="flex shrink-0 select-none gap-5 pr-5"
+            >
+              {baseList.map((p, idx) => (
+                <div key={`p-clone-2-${p.n}-${idx}`} tabIndex={-1} className="w-[260px] shrink-0 sm:w-[300px] md:w-[340px]">
+                  <article className="card-tech group overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden rounded-t-[1.2rem]">
+                      <img
+                        src={p.img}
+                        alt={p.n}
+                        loading="lazy"
+                        width={816}
+                        height={816}
+                        draggable={false}
+                        className="size-full object-cover select-none pointer-events-none transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {p.tag && <span className="pill-tag absolute left-4 top-4 bg-background/70 backdrop-blur">{p.tag}</span>}
+                    </div>
+                    <div className="flex items-center justify-between gap-3 p-5">
+                      <div>
+                        <div className="text-xs uppercase tracking-widest text-muted-foreground">{p.c}</div>
+                        <h3 className="mt-1 font-semibold">{p.n}</h3>
+                        <div className="display mt-2 text-lg font-bold text-neon">{p.p}</div>
+                      </div>
+                      <a
+                        href={wa(`Olá! Gostaria de consultar informações sobre: ${p.n}`)}
+                        target="_blank"
+                        rel="noreferrer"
+                        tabIndex={-1}
+                        aria-label={`Consultar ${p.n}`}
+                        className="grid size-12 shrink-0 place-items-center rounded-full bg-royal shadow-glow transition-transform group-hover:rotate-[-45deg]"
+                      >
+                        <ArrowRight className="size-5 text-primary-foreground" />
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="mt-8 flex justify-center gap-2">
-          {Array.from({ length: max + 1 }).map((_, i) => (
-            <button key={i} aria-label={`Ir para slide ${i + 1}`} onClick={() => setIdx(i)}
-              className={`h-1.5 rounded-full transition-all duration-500 ${i === idx ? "w-10 bg-neon shadow-neon" : "w-4 bg-muted"}`} />
-          ))}
         </div>
       </div>
     </section>
