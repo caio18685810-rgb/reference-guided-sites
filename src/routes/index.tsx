@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import {
-  Smartphone, Plug, Cpu, ShieldCheck,
+  Smartphone, Plug, Cpu, ShieldCheck, BatteryCharging, Volume2, Camera, Power, RefreshCw, Headphones,
   Zap, Clock, MapPin, Phone, Instagram, Facebook, Youtube, ChevronLeft,
-  ChevronRight, Play, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
+  ChevronRight, ChevronDown, Play, Pause, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
 } from "lucide-react";
 import { Reveal, SectionHead } from "@/components/site/Reveal";
 import hero from "@/assets/hero.jpg";
@@ -229,36 +229,116 @@ function About() {
 /* ---------------- Serviços ---------------- */
 const SERVICES = [
   { i: Smartphone, t: "Troca de telas", d: "Substituição de tela ou display, mediante avaliação técnica prévia do aparelho." },
+  { i: BatteryCharging, t: "Troca de bateria", d: "Substituição de bateria com baixa autonomia, inchaço ou desgaste para recuperar o rendimento." },
+  { i: Plug, t: "Reparo de conector de carga", d: "Manutenção ou troca de conector para solucionar falhas de contato e carregamento." },
   { i: Cpu, t: "Desbloqueio e recuperação", d: "Análise da viabilidade técnica para recuperação de acesso ou restauração, conforme o caso e modelo." },
+  { i: Volume2, t: "Alto-falante e microfone", d: "Reparo e desobstrução de saídas de som, chiados, áudio baixo e falhas no microfone." },
+  { i: Camera, t: "Câmeras e botões", d: "Reparo em lentes, módulos de câmera frontal e traseira, botões de volume e liga/desliga." },
+  { i: Power, t: "Celular que não liga", d: "Diagnóstico aprofundado em bancada para identificar a causa e viabilidade do conserto." },
+  { i: RefreshCw, t: "Problemas de software", d: "Atualização, reinstalação de sistema e solução de lentidão, loops e travamentos." },
   { i: ShieldCheck, t: "Aplicação de películas", d: "Aplicação de películas para proteção e conservação da tela do smartphone." },
-  { i: Plug, t: "Acessórios para celular", d: "Opções em cabos, carregadores, capas e itens para celulares disponíveis para consulta." },
+  { i: Headphones, t: "Acessórios para celular", d: "Opções em cabos, carregadores, capas e fones para celular disponíveis para consulta." },
+  { i: Wrench, t: "Diagnóstico e manutenção geral", d: "Avaliação técnica preventiva e reparos em componentes internos e hardware." },
 ];
 
 function Services() {
+  const [isPaused, setIsPaused] = useState(false);
+
   return (
-    <section id="servicos" className="relative bg-band py-24 md:py-32">
+    <section id="servicos" className="relative overflow-hidden bg-band py-24 md:py-32">
       <div className="absolute inset-0 tech-grid opacity-30" />
       <div className="relative mx-auto max-w-7xl px-5">
-        <SectionHead tag="Serviços prestados" title={<>Serviços dedicados ao seu <span className="text-gradient">smartphone.</span></>}
-          text="Conheça nossos serviços de manutenção e acessórios em Parauapebas. Valores e procedimentos são definidos mediante avaliação técnica prévia do aparelho." />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICES.map((s, k) => (
-            <Reveal key={s.t} delay={(k % 4) * 90}>
-              <div tabIndex={0} className="card-tech group h-full min-h-60 overflow-hidden p-6 focus:outline-none">
-                <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:bg-neon/30 group-hover:scale-150" />
-                <div className="relative flex items-start justify-between">
-                  <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
-                  <span className="display text-xs text-muted-foreground">0{k + 1}</span>
-                </div>
-                <h3 className="relative mt-8 text-xl font-semibold">{s.t}</h3>
-                <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
-                <div className="relative mt-5 flex items-center justify-between border-t pt-4 transition-all duration-500 opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-3 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 sm:group-focus:translate-y-0 sm:group-focus:opacity-100">
-                  <span className="text-sm font-semibold text-neon">Sob consulta</span>
-                  <a href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-neon transition-colors"><MessageCircle className="size-3" />Consultar</a>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHead
+            tag="Catálogo de serviços"
+            title={<>Serviços dedicados ao seu <span className="text-gradient">smartphone.</span></>}
+            text="Conheça nosso catálogo ampliado de manutenção e reparos em Parauapebas. Valores e procedimentos são definidos mediante avaliação técnica prévia do aparelho."
+          />
+          <div className="mb-8 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsPaused((prev) => !prev)}
+              aria-label={isPaused ? "Retomar movimento do carrossel" : "Pausar movimento do carrossel"}
+              className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/60 px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-md transition-all duration-200 hover:border-neon hover:text-neon hover:shadow-neon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon"
+            >
+              {isPaused ? <Play className="size-3.5 fill-current text-neon" /> : <Pause className="size-3.5 text-neon" />}
+              <span>{isPaused ? "Retomar carrossel" : "Pausar carrossel"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Carrossel horizontal contínuo e infinito */}
+      <div className="relative mt-8 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+        <div
+          className={`flex w-max animate-marquee-services hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] ${isPaused ? "[animation-play-state:paused]" : ""}`}
+        >
+          {/* Trilha 1: Itens reais acessíveis */}
+          <div className="flex shrink-0 gap-5 pr-5">
+            {SERVICES.map((s, k) => (
+              <div
+                key={`s-real-${s.t}`}
+                className="w-[280px] shrink-0 sm:w-[320px] md:w-[360px]"
+              >
+                <div tabIndex={0} className="card-tech group flex h-full min-h-[300px] flex-col justify-between overflow-hidden p-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon">
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30" />
+                  <div>
+                    <div className="relative flex items-start justify-between">
+                      <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
+                      <span className="display text-xs text-muted-foreground">{String(k + 1).padStart(2, "0")}</span>
+                    </div>
+                    <h3 className="relative mt-6 text-lg font-semibold">{s.t}</h3>
+                    <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
+                  </div>
+                  <div className="relative mt-5 flex items-center justify-between border-t pt-4">
+                    <span className="text-sm font-semibold text-neon">Sob consulta</span>
+                    <a
+                      href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-neon"
+                    >
+                      <MessageCircle className="size-3" />
+                      <span>Consultar</span>
+                    </a>
+                  </div>
                 </div>
               </div>
-            </Reveal>
-          ))}
+            ))}
+          </div>
+
+          {/* Trilha 2: Clone visual para loop contínuo infinito (oculto para leitores de tela e teclado) */}
+          <div
+            aria-hidden="true"
+            className="flex shrink-0 select-none pointer-events-none gap-5 pr-5"
+          >
+            {SERVICES.map((s, k) => (
+              <div
+                key={`s-clone-${s.t}`}
+                tabIndex={-1}
+                className="w-[280px] shrink-0 sm:w-[320px] md:w-[360px]"
+              >
+                <div className="card-tech group flex h-full min-h-[300px] flex-col justify-between overflow-hidden p-6">
+                  <div className="absolute -right-10 -top-10 size-32 rounded-full bg-primary/20 blur-2xl transition-all duration-700 group-hover:scale-150 group-hover:bg-neon/30" />
+                  <div>
+                    <div className="relative flex items-start justify-between">
+                      <s.i className="size-9 text-neon drop-shadow-[0_0_10px_var(--neon)]" />
+                      <span className="display text-xs text-muted-foreground">{String(k + 1).padStart(2, "0")}</span>
+                    </div>
+                    <h3 className="relative mt-6 text-lg font-semibold">{s.t}</h3>
+                    <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
+                  </div>
+                  <div className="relative mt-5 flex items-center justify-between border-t pt-4">
+                    <span className="text-sm font-semibold text-neon">Sob consulta</span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MessageCircle className="size-3" />
+                      <span>Consultar</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -353,9 +433,16 @@ function Shop() {
 /* ---------------- Atendimento ---------------- */
 const SERVICE_OPTIONS = [
   "Troca de telas",
+  "Troca de bateria",
+  "Reparo de conector de carga",
   "Desbloqueio e recuperação",
+  "Alto-falante e microfone",
+  "Câmeras e botões",
+  "Celular que não liga",
+  "Problemas de software",
   "Aplicação de películas",
   "Acessórios para celular",
+  "Diagnóstico e manutenção geral",
   "Outros",
 ] as const;
 
@@ -364,7 +451,19 @@ function Delivery() {
   const [aparelho, setAparelho] = useState("");
   const [selectedService, setSelectedService] = useState<string>("Troca de telas");
   const [descricao, setDescricao] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const [sent, setSent] = useState(false);
+
+  const standardServices = SERVICE_OPTIONS.filter((s) => s !== "Outros");
+  const initialServices = standardServices.slice(0, 4);
+  const extraServices = standardServices.slice(4);
+
+  // Mantém o item selecionado visível mesmo que a lista compacta esteja ativa
+  const visibleStandardServices = showAll
+    ? standardServices
+    : extraServices.includes(selectedService as any)
+      ? [...initialServices, selectedService]
+      : initialServices;
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -472,7 +571,7 @@ function Delivery() {
                   <span className="text-[10px] font-normal text-muted-foreground">Escolha uma opção</span>
                 </label>
                 <div role="radiogroup" aria-labelledby="servico-label" className="grid gap-2.5 sm:grid-cols-2">
-                  {SERVICE_OPTIONS.map((s) => {
+                  {visibleStandardServices.map((s) => {
                     const isSelected = selectedService === s;
                     return (
                       <label
@@ -481,7 +580,7 @@ function Delivery() {
                           isSelected
                             ? "border-neon bg-primary/20 text-foreground shadow-sm shadow-neon/20 ring-1 ring-neon/40"
                             : "border-border/80 bg-background/50 text-muted-foreground hover:border-primary/60 hover:bg-background/80 hover:text-foreground"
-                        } ${s === "Outros" ? "sm:col-span-2" : ""}`}
+                        }`}
                       >
                         <span className="flex items-center gap-2.5 text-sm font-medium">
                           <span
@@ -509,6 +608,50 @@ function Delivery() {
                       </label>
                     );
                   })}
+
+                  {/* Botão secundário para expandir / recolher opções */}
+                  <button
+                    type="button"
+                    onClick={() => setShowAll((prev) => !prev)}
+                    aria-expanded={showAll}
+                    className="group sm:col-span-2 flex items-center justify-center gap-2 rounded-xl border border-border/80 bg-background/40 py-2.5 px-4 text-xs font-semibold text-muted-foreground transition-all duration-200 hover:border-primary/60 hover:bg-background/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon"
+                  >
+                    <span>{showAll ? "Mostrar menos" : "Mostrar mais serviços"}</span>
+                    <ChevronDown className={`size-3.5 transition-transform duration-200 ${showAll ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {/* Opção "Outros" sempre acessível e destacada na base do catálogo */}
+                  <label
+                    className={`group relative sm:col-span-2 flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-neon focus-within:ring-offset-2 focus-within:ring-offset-background ${
+                      selectedService === "Outros"
+                        ? "border-neon bg-primary/20 text-foreground shadow-sm shadow-neon/20 ring-1 ring-neon/40"
+                        : "border-border/80 bg-background/50 text-muted-foreground hover:border-primary/60 hover:bg-background/80 hover:text-foreground"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5 text-sm font-medium">
+                      <span
+                        className={`grid size-4 shrink-0 place-items-center rounded-full border transition-all ${
+                          selectedService === "Outros" ? "border-neon bg-neon" : "border-muted-foreground/60 group-hover:border-primary"
+                        }`}
+                      >
+                        {selectedService === "Outros" && <span className="size-1.5 rounded-full bg-background" />}
+                      </span>
+                      <span className={selectedService === "Outros" ? "font-semibold text-foreground" : ""}>Outros</span>
+                    </span>
+                    <input
+                      type="radio"
+                      name="servico"
+                      value="Outros"
+                      checked={selectedService === "Outros"}
+                      onChange={() => setSelectedService("Outros")}
+                      className="sr-only"
+                    />
+                    {selectedService === "Outros" && (
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-neon">
+                        Selecionado
+                      </span>
+                    )}
+                  </label>
                 </div>
               </div>
 
