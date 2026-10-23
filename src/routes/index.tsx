@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   Smartphone, Plug, Cpu, ShieldCheck,
   Zap, Clock, MapPin, Phone, Instagram, Facebook, Youtube, ChevronLeft,
-  ChevronRight, Play, Truck, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
+  ChevronRight, Play, CalendarCheck, ArrowRight, MessageCircle, Wrench, Menu, X,
 } from "lucide-react";
 import { Reveal, SectionHead } from "@/components/site/Reveal";
 import hero from "@/assets/hero.jpg";
@@ -15,15 +15,23 @@ import pGlass from "@/assets/p-glass.jpg";
 import v1 from "@/assets/v1.jpg";
 import v2 from "@/assets/v2.jpg";
 
+const SITE_ORIGIN = "https://caio18685810-rgb.github.io";
+const ogImageUrl = typeof hero === "string" && hero.startsWith("http")
+  ? hero
+  : `${SITE_ORIGIN}${hero.startsWith("/") ? "" : "/"}${hero}`;
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Arcanjo Cell — Assistência Técnica em Parauapebas–PA" },
-      { name: "description", content: "Assistência técnica de celulares em Parauapebas–PA. Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios. Atendimento presencial e coleta por motoboy." },
+      { name: "description", content: "Assistência técnica de celulares em Parauapebas–PA. Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios. Atendimento presencial e suporte via WhatsApp." },
       { property: "og:title", content: "Arcanjo Cell — Assistência Técnica" },
-      { property: "og:description", content: "Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para celulares com atendimento e coleta por motoboy." },
+      { property: "og:description", content: "Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para celulares com atendimento presencial e suporte via WhatsApp." },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: ogImageUrl },
+      { property: "og:url", content: "https://caio18685810-rgb.github.io/reference-guided-sites/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImageUrl },
     ],
   }),
   component: Index,
@@ -35,7 +43,7 @@ const wa = (msg: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent
 
 const NAV = [
   ["Sobre", "#sobre"], ["Serviços", "#servicos"], ["Loja", "#loja"],
-  ["Delivery", "#delivery"], ["Vídeos", "#videos"], ["Contato", "#contato"],
+  ["Atendimento", "#delivery"], ["Vídeos", "#videos"], ["Contato", "#contato"],
 ] as const;
 
 function Index() {
@@ -87,14 +95,35 @@ function Header() {
             <a key={h} href={h} className="relative text-muted-foreground transition-colors hover:text-foreground after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-neon after:transition-all hover:after:w-full">{l}</a>
           ))}
         </nav>
-        <a href="#delivery" className="btn-primary hidden !py-2.5 md:inline-flex">Solicitar coleta</a>
-        <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X /> : <Menu />}</button>
+        <a href="#delivery" className="btn-primary hidden !py-2.5 md:inline-flex">Solicitar atendimento</a>
+        <button
+          className="lg:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label="Menu"
+          aria-expanded={open}
+          aria-controls="mobile-navigation"
+        >
+          {open ? <X /> : <Menu />}
+        </button>
       </div>
       {open && (
-        <nav className="mx-4 mt-2 grid gap-1 rounded-3xl border bg-background/95 p-4 backdrop-blur-xl lg:hidden">
+        <nav
+          id="mobile-navigation"
+          aria-label="Navegação móvel"
+          className="mx-4 mt-2 grid gap-1 rounded-3xl border bg-background/95 p-4 backdrop-blur-xl lg:hidden"
+        >
           {NAV.map(([l, h]) => (
             <a key={h} href={h} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 hover:bg-secondary">{l}</a>
           ))}
+          <div className="mt-2 border-t border-border/60 pt-3">
+            <a
+              href="#delivery"
+              onClick={() => setOpen(false)}
+              className="btn-primary flex w-full justify-center !py-3"
+            >
+              Solicitar atendimento
+            </a>
+          </div>
         </nav>
       )}
     </header>
@@ -119,10 +148,10 @@ function Hero() {
         </h1>
         <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
           <p className="max-w-xl text-lg text-muted-foreground animate-rise" style={{ animationDelay: "420ms" }}>
-            Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para o seu celular. Atendimento presencial no bairro Nova Vida e coleta por motoboy em Parauapebas mediante agendamento.
+            Troca de telas, desbloqueio e recuperação de acesso, películas e acessórios para o seu celular. Atendimento presencial no bairro Nova Vida e solicitação ágil de suporte via WhatsApp.
           </p>
           <div className="flex flex-wrap gap-3 animate-rise" style={{ animationDelay: "560ms" }}>
-            <a href="#delivery" className="btn-primary">Solicitar coleta <ArrowRight className="size-4" /></a>
+            <a href="#delivery" className="btn-primary">Solicitar atendimento <ArrowRight className="size-4" /></a>
             <a href="#loja" className="btn-ghost">Ver acessórios</a>
           </div>
         </div>
@@ -160,19 +189,19 @@ function About() {
     { i: Smartphone, t: "Troca de telas", d: "Substituição de tela e display realizada após análise do modelo e do aparelho." },
     { i: Cpu, t: "Recuperação de acesso", d: "Análise da viabilidade técnica para procedimentos de recuperação de acesso e software." },
     { i: ShieldCheck, t: "Aplicação de películas", d: "Aplicação de películas protetoras para conservação da tela do celular." },
-    { i: Plug, t: "Acessórios e comodidade", d: "Opções em acessórios para smartphone e serviço de coleta por motoboy." },
+    { i: Plug, t: "Acessórios e comodidade", d: "Opções selecionadas em acessórios para smartphone e atendimento dedicado." },
   ];
   return (
     <section id="sobre" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-5">
         <SectionHead tag="Quem somos" title={<>Atendimento e assistência <span className="text-gradient">para o seu celular.</span></>}
-          text="A Arcanjo Cell atua no bairro Nova Vida, em Parauapebas–PA, prestando serviços de manutenção para smartphones e atendimento com coleta por motoboy. Nossos procedimentos são orientados pela clareza e transparência, com avaliação prévia de cada aparelho." />
+          text="A Arcanjo Cell atua no bairro Nova Vida, em Parauapebas–PA, prestando serviços de manutenção para smartphones com atendimento via WhatsApp e presencial. Nossos procedimentos são orientados pela clareza e transparência, com avaliação prévia de cada aparelho." />
         <div className="grid gap-5 lg:grid-cols-12">
           <Reveal className="relative overflow-hidden rounded-3xl lg:col-span-7 lg:row-span-2">
             <img src={lab} alt="Bancada de assistência e manutenção técnica" loading="lazy" width={1280} height={960} className="size-full min-h-80 object-cover transition-transform duration-[1.5s] hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent" />
             <div className="absolute bottom-0 grid gap-4 p-6 sm:grid-cols-3 md:p-8">
-              {[["Parauapebas", "Bairro Nova Vida"], ["Atendimento", "Presencial e Motoboy"], ["Avaliação", "Análise prévia do aparelho"]].map(([a, b]) => (
+              {[["Parauapebas", "Bairro Nova Vida"], ["Atendimento", "Presencial e WhatsApp"], ["Avaliação", "Análise prévia do aparelho"]].map(([a, b]) => (
                 <div key={a} className="rounded-2xl border bg-background/60 p-4 backdrop-blur-md">
                   <div className="display text-lg font-bold text-neon">{a}</div>
                   <div className="text-sm text-muted-foreground">{b}</div>
@@ -223,7 +252,7 @@ function Services() {
                 </div>
                 <h3 className="relative mt-8 text-xl font-semibold">{s.t}</h3>
                 <p className="relative mt-2 text-sm text-muted-foreground">{s.d}</p>
-                <div className="relative mt-5 flex translate-y-3 items-center justify-between border-t pt-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100 group-focus:translate-y-0 group-focus:opacity-100">
+                <div className="relative mt-5 flex items-center justify-between border-t pt-4 transition-all duration-500 opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-3 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 sm:group-focus:translate-y-0 sm:group-focus:opacity-100">
                   <span className="text-sm font-semibold text-neon">Sob consulta</span>
                   <a href={wa(`Olá! Gostaria de consultar informações sobre o serviço: ${s.t}`)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-neon transition-colors"><MessageCircle className="size-3" />Consultar</a>
                 </div>
@@ -321,28 +350,68 @@ function Shop() {
   );
 }
 
-/* ---------------- Delivery ---------------- */
+/* ---------------- Atendimento ---------------- */
+const SERVICE_OPTIONS = [
+  "Troca de telas",
+  "Desbloqueio e recuperação",
+  "Aplicação de películas",
+  "Acessórios para celular",
+  "Outros",
+] as const;
+
 function Delivery() {
+  const [nome, setNome] = useState("");
+  const [aparelho, setAparelho] = useState("");
+  const [selectedService, setSelectedService] = useState<string>("Troca de telas");
+  const [descricao, setDescricao] = useState("");
   const [sent, setSent] = useState(false);
+
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
-    const msg = `Olá, Arcanjo Cell! Quero solicitar coleta por motoboy.\nNome: ${f.get("nome")}\nAparelho: ${f.get("aparelho")}\nServiço: ${f.get("problema")}\nEndereço/Bairro: ${f.get("bairro")}`;
+    const nomeTrimmed = nome.trim();
+    const aparelhoTrimmed = aparelho.trim();
+    const descricaoTrimmed = descricao.trim();
+
+    if (!nomeTrimmed || !aparelhoTrimmed) {
+      return;
+    }
+    if (selectedService === "Outros" && !descricaoTrimmed) {
+      return;
+    }
+
+    const lines = [
+      "Olá, Arcanjo Cell! Gostaria de solicitar atendimento para meu aparelho.",
+      "",
+      `Nome: ${nomeTrimmed}`,
+      `Aparelho: ${aparelhoTrimmed}`,
+      `Serviço desejado: ${selectedService}`,
+    ];
+
+    if (selectedService === "Outros" && descricaoTrimmed) {
+      lines.push("", `Descrição: ${descricaoTrimmed}`);
+    }
+
+    const msg = lines.join("\n");
     window.open(wa(msg), "_blank");
     setSent(true);
   };
+
   const steps = [
-    { i: CalendarCheck, t: "Solicite", d: "Envie seus dados e endereço de Parauapebas" },
-    { i: Truck, t: "Coletamos", d: "Nosso motoboy busca o aparelho com você" },
-    { i: Wrench, t: "Avaliamos", d: "Análise técnica prévia e orçamento alinhado" },
-    { i: Zap, t: "Entregamos", d: "Devolvemos seu aparelho pronto no endereço" },
+    { i: CalendarCheck, t: "Preencha", d: "Informe seu aparelho e o serviço desejado" },
+    { i: MessageCircle, t: "Encaminhe", d: "Inicie o contato com nossa equipe pelo WhatsApp" },
+    { i: Wrench, t: "Avaliação", d: "Análise técnica prévia com esclarecimento de dúvidas" },
+    { i: ShieldCheck, t: "Atendimento", d: "Procedimento seguro e transparente na loja" },
   ];
-  const input = "w-full rounded-xl border bg-background/50 px-4 py-3 text-sm placeholder:text-muted-foreground/70 transition-all focus:border-neon focus:shadow-neon focus:outline-none";
+  const input = "w-full rounded-xl border border-input/80 bg-background/60 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 transition-all duration-200 focus:border-neon focus:bg-background/90 focus:outline-none focus:ring-2 focus:ring-neon/20";
+
   return (
     <section id="delivery" className="relative bg-band py-24 md:py-32">
       <div className="relative mx-auto max-w-7xl px-5">
-        <SectionHead tag="Delivery & agendamento" title={<>Atendimento com <span className="text-gradient">coleta por motoboy.</span></>}
-          text="Solicite a busca do seu aparelho em seu endereço em Parauapebas. Realizamos a avaliação técnica prévia com comodidade e agilidade." />
+        <SectionHead
+          tag="Atendimento técnico"
+          title={<>Como podemos <span className="text-gradient">ajudar?</span></>}
+          text="Conte o que você precisa e escolha o serviço desejado. Sua solicitação será encaminhada diretamente para nossa equipe pelo WhatsApp."
+        />
         <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, k) => (
             <Reveal key={s.t} delay={k * 100} className="relative flex items-center gap-4 rounded-2xl border bg-background/40 p-5 backdrop-blur">
@@ -351,39 +420,139 @@ function Delivery() {
             </Reveal>
           ))}
         </div>
-        <div className="grid gap-5 lg:grid-cols-5">
-          <Reveal className="card-tech p-6 md:p-8 lg:col-span-2">
-            <h3 className="display text-2xl font-bold">Solicitar coleta</h3>
-            <p className="mt-2 text-sm text-muted-foreground">Enviamos seu pedido direto para nosso WhatsApp.</p>
-            <form onSubmit={submit} className="mt-6 grid gap-3">
-              <label className="sr-only" htmlFor="nome">Nome</label>
-              <input id="nome" name="nome" required maxLength={80} placeholder="Seu nome" className={input} />
-              <label className="sr-only" htmlFor="aparelho">Aparelho</label>
-              <input id="aparelho" name="aparelho" required maxLength={60} placeholder="Modelo do aparelho (ex: iPhone 13)" className={input} />
-              <label className="sr-only" htmlFor="problema">Serviço</label>
-              <select id="problema" name="problema" className={input} defaultValue="Troca de telas">
-                {SERVICES.map((s) => <option key={s.t} className="bg-card">{s.t}</option>)}
-              </select>
-              <label className="sr-only" htmlFor="bairro">Endereço / Bairro em Parauapebas</label>
-              <input id="bairro" name="bairro" required maxLength={120} placeholder="Seu endereço / bairro em Parauapebas" className={input} />
-              <button type="submit" className="btn-primary mt-2 justify-center">Enviar pedido via WhatsApp <MessageCircle className="size-4" /></button>
-              {sent && <p className="text-center text-sm text-neon">Pedido aberto no WhatsApp. É só enviar!</p>}
+        <div className="mx-auto max-w-2xl">
+          <Reveal className="card-tech rounded-3xl border border-border/80 bg-card/60 p-6 shadow-2xl backdrop-blur-xl sm:p-8 md:p-10">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neon">
+              <Wrench className="size-4" /> Solicitação de atendimento
+            </div>
+            <h3 className="display mt-2 text-2xl font-bold md:text-3xl">Solicitar atendimento</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Preencha os dados abaixo para iniciar sua conversa com a equipe técnica.
+            </p>
+            <form onSubmit={submit} className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="nome" className="flex items-center justify-between text-xs font-semibold text-foreground/90">
+                  <span>Seu nome</span>
+                  <span className="text-[10px] font-normal text-muted-foreground">Obrigatório</span>
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  required
+                  maxLength={80}
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Seu nome"
+                  className={input}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="aparelho" className="flex items-center justify-between text-xs font-semibold text-foreground/90">
+                  <span>Modelo do aparelho</span>
+                  <span className="text-[10px] font-normal text-muted-foreground">Obrigatório</span>
+                </label>
+                <input
+                  id="aparelho"
+                  name="aparelho"
+                  type="text"
+                  required
+                  maxLength={60}
+                  value={aparelho}
+                  onChange={(e) => setAparelho(e.target.value)}
+                  placeholder="Ex.: Samsung Galaxy A54"
+                  className={input}
+                />
+              </div>
+
+              <div className="space-y-2 sm:col-span-2">
+                <label id="servico-label" className="flex items-center justify-between text-xs font-semibold text-foreground/90">
+                  <span>Qual serviço você precisa?</span>
+                  <span className="text-[10px] font-normal text-muted-foreground">Escolha uma opção</span>
+                </label>
+                <div role="radiogroup" aria-labelledby="servico-label" className="grid gap-2.5 sm:grid-cols-2">
+                  {SERVICE_OPTIONS.map((s) => {
+                    const isSelected = selectedService === s;
+                    return (
+                      <label
+                        key={s}
+                        className={`group relative flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all duration-200 focus-within:ring-2 focus-within:ring-neon focus-within:ring-offset-2 focus-within:ring-offset-background ${
+                          isSelected
+                            ? "border-neon bg-primary/20 text-foreground shadow-sm shadow-neon/20 ring-1 ring-neon/40"
+                            : "border-border/80 bg-background/50 text-muted-foreground hover:border-primary/60 hover:bg-background/80 hover:text-foreground"
+                        } ${s === "Outros" ? "sm:col-span-2" : ""}`}
+                      >
+                        <span className="flex items-center gap-2.5 text-sm font-medium">
+                          <span
+                            className={`grid size-4 shrink-0 place-items-center rounded-full border transition-all ${
+                              isSelected ? "border-neon bg-neon" : "border-muted-foreground/60 group-hover:border-primary"
+                            }`}
+                          >
+                            {isSelected && <span className="size-1.5 rounded-full bg-background" />}
+                          </span>
+                          <span className={isSelected ? "font-semibold text-foreground" : ""}>{s}</span>
+                        </span>
+                        <input
+                          type="radio"
+                          name="servico"
+                          value={s}
+                          checked={isSelected}
+                          onChange={() => setSelectedService(s)}
+                          className="sr-only"
+                        />
+                        {isSelected && (
+                          <span className="text-[11px] font-semibold uppercase tracking-wide text-neon">
+                            Selecionado
+                          </span>
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {selectedService === "Outros" && (
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label htmlFor="descricao" className="flex items-center justify-between text-xs font-semibold text-foreground/90">
+                    <span>Descreva o que aconteceu com seu aparelho</span>
+                    <span className="text-[10px] font-normal text-neon">Obrigatório</span>
+                  </label>
+                  <textarea
+                    id="descricao"
+                    name="descricao"
+                    required={selectedService === "Outros"}
+                    rows={3}
+                    maxLength={300}
+                    value={descricao}
+                    onChange={(e) => setDescricao(e.target.value)}
+                    placeholder="Conte brevemente qual é o problema ou o que você precisa."
+                    className="w-full rounded-xl border border-input/80 bg-background/60 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 transition-all duration-200 focus:border-neon focus:bg-background/90 focus:outline-none focus:ring-2 focus:ring-neon/20 resize-none"
+                  />
+                </div>
+              )}
+
+              <div className="pt-2 sm:col-span-2">
+                <button
+                  type="submit"
+                  className="btn-primary group relative flex w-full items-center justify-center gap-2.5 !py-3.5 text-base font-semibold shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-neon/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.99]"
+                >
+                  <span>Encaminhar para o WhatsApp</span>
+                  <MessageCircle className="size-5 transition-transform duration-300 group-hover:scale-110" />
+                </button>
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  A conversa será aberta no WhatsApp com as informações preenchidas para você revisar e enviar.
+                </p>
+              </div>
+
+              {sent && (
+                <div className="sm:col-span-2 rounded-xl border border-neon/40 bg-primary/10 p-4 text-center">
+                  <p className="text-sm font-medium text-neon">
+                    WhatsApp aberto com a sua solicitação pronta. É só revisar e enviar a mensagem!
+                  </p>
+                </div>
+              )}
             </form>
-          </Reveal>
-          <Reveal delay={150} className="relative min-h-96 overflow-hidden rounded-[1.25rem] border lg:col-span-3">
-            {/* Visualização aproximada da região do bairro Nova Vida, Parauapebas–PA */}
-            <iframe title="Mapa aproximado da região da loja" loading="lazy"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-49.900266967841785%2C-6.089011078829035%2C-49.890266967841785%2C-6.083011078829035&layer=mapnik"
-              className="absolute inset-0 size-full [filter:invert(.92)_hue-rotate(185deg)_saturate(1.6)_brightness(.9)]" />
-            <div className="pointer-events-none absolute left-1/2 top-1/2 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-neon/60 bg-primary/15 shadow-neon">
-              <span className="absolute inset-0 rounded-full border border-neon animate-pulse-ring" />
-              <MapPin className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-full text-neon animate-float" />
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2">
-              {["Parauapebas–PA", "Bairro Nova Vida", "Localização aproximada"].map((b) => (
-                <span key={b} className="pill-tag bg-background/80 backdrop-blur">{b}</span>
-              ))}
-            </div>
           </Reveal>
         </div>
       </div>
@@ -451,10 +620,28 @@ function Videos() {
 /* ---------------- Contato ---------------- */
 function Contact() {
   const info = [
-    { i: MapPin, t: "Endereço", d: "Rua Mangueiras, nº 360, bairro Nova Vida, Parauapebas–PA, CEP 68515-000" },
-    { i: Phone, t: "WhatsApp / Atendimento", d: "(94) 98444-9409" },
-    { i: Smartphone, t: "Serviços", d: "Telas, recuperação de acesso, películas e acessórios" },
-    { i: Clock, t: "Horário", d: "Atendimento presencial e via WhatsApp · Consulte horários" },
+    {
+      i: MapPin,
+      t: "Endereço",
+      d: "Rua Mangueiras, nº 360, bairro Nova Vida, Parauapebas–PA, CEP 68515-000",
+      href: "https://www.google.com/maps/search/?api=1&query=Rua+Mangueiras%2C+360+-+Nova+Vida%2C+Parauapebas+-+PA",
+    },
+    {
+      i: Phone,
+      t: "WhatsApp / Atendimento",
+      d: "(94) 98444-9409",
+      href: wa("Olá! Gostaria de falar com a Arcanjo Cell."),
+    },
+    {
+      i: Smartphone,
+      t: "Serviços",
+      d: "Telas, recuperação de acesso, películas e acessórios",
+    },
+    {
+      i: Clock,
+      t: "Horário",
+      d: "Atendimento presencial e via WhatsApp · Consulte horários",
+    },
   ];
   return (
     <section id="contato" className="relative bg-band py-24 md:py-32">
@@ -465,7 +652,21 @@ function Contact() {
             {info.map((x, k) => (
               <Reveal key={x.t} delay={k * 80} className="card-tech flex items-start gap-4 p-5">
                 <div className="grid size-11 shrink-0 place-items-center rounded-xl border border-primary/40 bg-primary/10"><x.i className="size-5 text-neon" /></div>
-                <div><div className="text-xs uppercase tracking-widest text-muted-foreground">{x.t}</div><div className="mt-1 font-medium">{x.d}</div></div>
+                <div>
+                  <div className="text-xs uppercase tracking-widest text-muted-foreground">{x.t}</div>
+                  {x.href ? (
+                    <a
+                      href={x.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 block font-medium transition-colors hover:text-neon"
+                    >
+                      {x.d}
+                    </a>
+                  ) : (
+                    <div className="mt-1 font-medium">{x.d}</div>
+                  )}
+                </div>
               </Reveal>
             ))}
           </div>
@@ -483,28 +684,62 @@ function Contact() {
 
 function Footer() {
   const cols = [
-    ["Serviços", ["Troca de telas", "Recuperação de acesso", "Películas", "Acessórios"]],
-    ["Atendimento", ["Bairro Nova Vida", "Parauapebas–PA", "Coleta por motoboy", "WhatsApp"]],
-    ["Navegação", ["Sobre", "Serviços", "Loja", "Contato"]],
-  ] as const;
+    {
+      title: "Serviços",
+      links: [
+        { label: "Troca de telas", href: "#servicos" },
+        { label: "Recuperação de acesso", href: "#servicos" },
+        { label: "Películas", href: "#servicos" },
+        { label: "Acessórios", href: "#loja" },
+      ],
+    },
+    {
+      title: "Atendimento",
+      links: [
+        { label: "Bairro Nova Vida", href: "#contato" },
+        { label: "Parauapebas–PA", href: "#contato" },
+        { label: "Solicitar atendimento", href: "#delivery" },
+        { label: "WhatsApp", href: wa("Olá! Gostaria de falar com a Arcanjo Cell."), external: true },
+      ],
+    },
+    {
+      title: "Navegação",
+      links: [
+        { label: "Sobre", href: "#sobre" },
+        { label: "Serviços", href: "#servicos" },
+        { label: "Loja", href: "#loja" },
+        { label: "Contato", href: "#contato" },
+      ],
+    },
+  ];
   return (
     <footer className="relative overflow-hidden border-t pt-20">
       <div className="mx-auto max-w-7xl px-5">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
             <div className="display text-2xl font-black">ARCANJO<span className="text-neon"> CELL</span></div>
-            <p className="mt-4 max-w-xs text-sm text-muted-foreground">Assistência técnica de celulares no bairro Nova Vida em Parauapebas–PA. Atendimento presencial e coleta por motoboy.</p>
+            <p className="mt-4 max-w-xs text-sm text-muted-foreground">Assistência técnica de celulares no bairro Nova Vida em Parauapebas–PA. Atendimento presencial e suporte via WhatsApp.</p>
             <div className="mt-6 flex gap-3">
               {[Instagram, Facebook, Youtube].map((I, k) => (
                 <span key={k} aria-label="Canal social" className="grid size-10 place-items-center rounded-full border border-border/50 text-muted-foreground/40 cursor-default"><I className="size-4" /></span>
               ))}
             </div>
           </div>
-          {cols.map(([t, ls]) => (
-            <div key={t}>
-              <div className="text-xs font-semibold uppercase tracking-widest text-neon">{t}</div>
+          {cols.map((col) => (
+            <div key={col.title}>
+              <div className="text-xs font-semibold uppercase tracking-widest text-neon">{col.title}</div>
               <ul className="mt-4 grid gap-2.5 text-sm text-muted-foreground">
-                {ls.map((l) => <li key={l}><a href="#" className="transition-colors hover:text-foreground">{l}</a></li>)}
+                {col.links.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      {...(link.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
